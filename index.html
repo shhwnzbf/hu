@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>陈梓旭恭祝乙巳蛇年大吉</title>
+    <style>
+        :root {
+            --gold: #ffd700;
+            --red: #e41b13;
+        }
+
+        body {
+            margin: 0;
+            background: #0a0a0a;
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow-x: hidden;
+            color: var(--gold);
+            touch-action: manipulation;
+        }
+
+        .container {
+            position: relative;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #2b0000 0%, #0a0a0a 100%);
+        }
+
+        .header {
+            text-align: center;
+            padding: 1rem;
+            position: relative;
+        }
+
+        .title {
+            font-size: clamp(2rem, 8vw, 4rem);
+            text-shadow: 0 0 15px var(--red);
+            animation: titleGlow 2s infinite alternate;
+            margin: 0.5rem 0;
+        }
+
+        .fireworks {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+        }
+
+        .luck-section {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: 2px solid var(--gold);
+            z-index: 100;
+        }
+
+        #luck-btn {
+            background: var(--red);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            font-size: clamp(14px, 4vw, 1.2rem);
+            display: block;
+        }
+
+        #luck-count {
+            font-size: clamp(1.5rem, 6vw, 2rem);
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .game-container {
+            position: relative;
+            width: 90vw;
+            height: 50vh;
+            margin: 1rem auto;
+            border: 3px solid var(--gold);
+            border-radius: 10px;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .snake {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            width: 60px;
+            height: 30px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23ffd700" d="M496 256c0 137-111 248-248 248S0 393 0 256 111 8 248 8s248 111 248 248zM212 140v116h-70c-10.7 0-16 12.9-8.5 20.5l114 114c4.7 4.7 12.3 4.7 17 0l114-114c7.6-7.6 2.2-20.5-8.5-20.5h-70V140c0-6.6-5.4-12-12-12h-64c-6.6 0-12 5.4-12 12z"/></svg>');
+            background-size: contain;
+            transition: left 0.15s;
+        }
+
+        .falling-item {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: var(--red);
+            border-radius: 50%;
+            animation: fall 3s linear;
+        }
+
+        @keyframes titleGlow {
+            from { text-shadow: 0 0 10px var(--red); }
+            to { text-shadow: 0 0 30px var(--red); }
+        }
+
+        @keyframes fall {
+            from { top: -30px; }
+            to { top: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas class="fireworks"></canvas>
+        
+        <div class="luck-section">
+            <button id="luck-btn">点击接福运</button>
+            <div id="luck-count">0</div>
+        </div>
+
+        <div class="header">
+            <h1 class="title">陈梓旭祝您乙巳蛇年大吉</h1>
+            <h2 id="dynamic-text"></h2>
+        </div>
+
+        <div class="game-container">
+            <div class="snake"></div>
+        </div>
+
+        <audio id="bgm" loop>
+            <source src="https://cdn.pixabay.com/audio/2023/12/27/audio_3f55b9a82c.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fireworks-js/2.4.0/fireworks-js.umd.min.js"></script>
+    <script>
+        // 移动端优化版烟花
+        const fireworks = new Fireworks(document.body, {
+            intensity: 15,
+            particleTimeout: 100,
+            traceLength: 2,
+            explosion: 5,
+            autoresize: true
+        });
+        fireworks.start();
+
+        // 福运计数器
+        let luckCount = 0;
+        const luckBtn = document.getElementById('luck-btn');
+        const luckDisplay = document.getElementById('luck-count');
+        
+        const handleLuckClick = (e) => {
+            luckCount++;
+            luckDisplay.textContent = luckCount;
+            createParticleEffect(e);
+        };
+        luckBtn.addEventListener('touchstart', handleLuckClick);
+        luckBtn.addEventListener('click', handleLuckClick);
+
+        // 轻量级粒子特效
+        function createParticleEffect(e) {
+            const touch = e.touches ? e.touches[0] : e;
+            for(let i=0; i<15; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: fixed;
+                    left: ${touch.clientX}px;
+                    top: ${touch.clientY}px;
+                    width: 8px;
+                    height: 8px;
+                    background: ${Math.random() > 0.5 ? 'gold' : 'red'};
+                    border-radius: 50%;
+                    pointer-events: none;
+                    animation: particle ${Math.random()*0.3+0.3}s linear;
+                    transform: translate(
+                        ${Math.random()*60-30}px,
+                        ${Math.random()*60-30}px
+                    );
+                `;
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 300);
+            }
+        }
+
+        // 移动端优化小游戏
+        const gameContainer = document.querySelector('.game-container');
+        const snake = document.querySelector('.snake');
+        let isMoving = false;
+
+        // 触摸控制
+        gameContainer.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const rect = gameContainer.getBoundingClientRect();
+            const x = e.touches[0].clientX - rect.left - 30;
+            snake.style.left = Math.max(0, Math.min(x, gameContainer.offsetWidth - 60)) + 'px';
+        });
+
+        // 生成元宝
+        setInterval(() => {
+            const item = document.createElement('div');
+            item.className = 'falling-item';
+            item.style.left = `${Math.random() * (gameContainer.offsetWidth - 25)}px`;
+            gameContainer.appendChild(item);
+            setTimeout(() => item.remove(), 3000);
+        }, 1500);
+
+        // 背景音乐
+        document.addEventListener('touchstart', initAudio, { once: true });
+        document.addEventListener('click', initAudio, { once: true });
+
+        function initAudio() {
+            const bgm = document.getElementById('bgm');
+            bgm.play();
+        }
+
+        // 动态文字
+        const texts = ['福星高照', '吉祥如意', '年年有余', '万事胜意'];
+        let index = 0;
+        setInterval(() => {
+            document.getElementById('dynamic-text').textContent = texts[index];
+            index = (index + 1) % texts.length;
+        }, 2000);
+    </script>
+</body>
+</html> html>
